@@ -122,10 +122,118 @@ SELECT g.*
     GROUP BY g.id_grad, g.ime, g.prezime, g.oib, g.id_zaposlenik
     HAVING count(t.id_gradanin) = 1;
 
+-- prikazi video zapise koji imaju samo jednu ocjenu
+
+SELECT video.id, video.naslov, COUNT(*) AS broj_ocjena
+	FROM video, ocjena
+	WHERE video.id = ocjena.id_video
+	GROUP BY video.id
+	HAVING broj_ocjena = 1;
+
 -- prikaži sve građane sa dodatnim stupcem koji prikazuje ukupan iznos stanja na njihovim tekućim računima
 
 SELECT g.*, sum(t.stanje) AS totalni_iznos
 	FROM gradanin AS g
     INNER JOIN tekuci AS t ON (t.id_gradanin = g.id_grad)
     GROUP BY g.id_grad, g.ime, g.prezime, g.oib, g.id_zaposlenik;
-    
+
+-- prikazi video zapise i broj ukupnih ocjena pojedinog videa
+
+SELECT v.id, v.naslov, COUNT(*) AS broj_ocjena
+	FROM video AS v, ocjena AS o
+	WHERE v.id = o.id_video
+	GROUP BY v.id, v.naslov;
+
+-- prikazite sve korisnike gdje su imena marko ili tea ili toni
+
+SELECT *
+	FROM korisnik
+	WHERE ime = 'Marko', ime = 'Tea', ime = 'Toni';
+
+-- OR --
+
+SELECT *
+	FROM korisnik
+	WHERE ime IN ('Marko', 'Tea', 'Toni');
+
+-- prikazite sve korisnik koji nisu nikada nista ocijenili
+
+SELECT *
+	FROM korisnik
+	WHERE ime NOT IN (SELECT DISTINCT id_korisnik FROM ocjena);
+
+-- prikazite sva imena korisnika koji se pojavljuju kao prezimena korisnika
+
+SELECT ime
+	FROM korisnik
+	WHERE ime IN (SELECT prezime FROM korisnik);
+
+-- video koji ima najveci broj pregleda
+
+SELECT MAX(broj_pregleda)
+	FROM video;
+
+-- video koji ima 500 pregleda
+
+SELECT *
+	FROM video
+	WHERE broj_pregleda = (SELECT MAX(broj_pregleda) FROM video) -- samo u 1 stupac jedan redak, znaci 1 rezultat
+
+-- sve video koje je ocjenio korisnik Toni
+
+SELECT *
+	FROM video, korisnik, ocjena
+	WHERE video.id = ocjena.id_video
+		AND korisnik.id = ocjena.id_korisnik
+		AND ime = 'Toni';
+
+-- OR --
+
+SELECT *
+	FROM video
+	WHERE id IN (SELECT id_video
+		    	FROM ocjena
+		    WHERE id_korisnik IN (SELECT id FROM korisnik WHERE ime = 'Toni'));
+
+-- prikazi sve kombinacije gradana i zaposlenika
+
+SELECT *
+	FROM gradanin CROSS JOIN zaposlenik;
+
+-- prikazi građane i njihove osobne bankare
+
+SELECT *
+	FROM gradanin INNER JOIN zaposlenik ON (gradanin.id_zaposlenik = zaposlenik.id);
+
+-- prikazi gradane sa osobnim bankarima i one koji nemaju bankara
+
+SELECT *
+	FROM gradanin LEFT JOIN zaposlenik ON (gradanin.id_zaposlenik = zaposlenik.id);
+
+-- prikazi gradane sa osobnim bankarima i bankare koji nemaju gradana
+
+SELECT *
+	FROM gradanin RIGHT JOIN zaposlenik ON (gradanin.id_zaposlenik = zaposlenik.id);
+
+-- prikazi gradane sa osobnim bankarima cak i bankare i gradane koji nemaju par
+
+SELECT *
+	FROM gradanin RIGHT JOIN zaposlenik ON (gradanin.id_zaposlenik = zaposlenik.id)
+UNION
+SELECT *
+	FROM gradanin LEFT JOIN zaposlenik ON (gradanin.id_zaposlenik = zaposlenik.id);
+
+-- prikazi gradane sa dva dodatna stupca ukupan iznos na tekucim racunima i ukupan iznos na stednim racunima
+
+SELECT *, (SELECT SUM(stanje) FROM stednja WHERE id_gradanin = gradanin.id) AS stedni_racuni,
+	  (SELECT SUM(stanje) FROM tekuci WHERE id_gradanin = gradanin.id) AS tekuci_racuni
+	   FROM gradanin;
+
+-- OR --
+
+SELECT *
+	FROM gradanin
+	LEFT JOIN (SELECT *, SUM(stanje) AS stedni_racuni FROM stednja GROUP BY id_gradanin) AS sted ON (gradanin.id = sted.id_gradanin)
+	LEFT JOIN (SELECT *, SUM(stanje) AS tekuci_racuni FROM tekuci GROUP BY id_gradanin) AS tek ON (gradanin.id = tek.id_gradanin);
+
+-- 
