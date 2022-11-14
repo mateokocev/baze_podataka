@@ -1,0 +1,43 @@
+A--------------------------------------------------------
+1. ZADATAK
+- pomakne mem[20] u GR0
+- sumira mem[21] sa vec postojecom vrijednosti u GR0
+- spremi GR0 vrijednost u mem[22]
+- halt zaustavnja program
+- ds 1 rezervira memorijski iako nepotrebno ovdje
+
+2. ZADATAK
+- pomakne vrijednost 1 u GR0
+- sumira vrijednost u GR0 sa 4 (postaje 5)
+- jump preskoči 5 koraka (u ovom slučaju 0 + GR0 što je 5)
+
+3. ZADATAK
+- spremi vrijednost 9 u GR7
+- CALL 10 dekrementira stack pointer za 1 i spremi povratnu informaciju na novo dobiveni indeks
+- skoči na mem[10] i dodaj vrijednost 10 u GR0
+- sumiraj GR0 sa vrijednosti 20
+- ret nas vraća na noop
+- halt zaustavi program
+
+B------------------------------------------------------------
+0: move 20, GR0
+1: add 21, GR0
+2: add 22, GR0
+3: move GR0, 23
+4: halt
+
+20: 12
+21: 8
+22: 10
+23: ds 1
+
+C------------------------------------------------------------
+0: 
+move var 
+20: rezultat
+21: 3
+22: 1
+23: 2
+24: 3
+25: 4
+26: 5
