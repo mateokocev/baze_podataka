@@ -172,7 +172,7 @@ CREATE FUNCTION broj_artikla() RETURNS INTEGER
 	DETERMINISTIC
 	BEGIN
 		DECLARE br INTEGER;
-			SELECT count(*)INTO br
+			SELECT count(*) INTO br
 				FROM artikl;
 				
 		RETURN br;
